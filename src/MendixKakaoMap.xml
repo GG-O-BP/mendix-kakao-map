@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget id="ggobp.mendixkakaomap.MendixKakaoMap" pluginWidget="true"
+        needsEntityContext="true" offlineCapable="false"
+        supportedPlatform="Web"
+        xmlns="http://www.mendix.com/widget/1.0/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+    <name>Mendix Kakao Map</name>
+    <description>Kakao Map widget for Mendix — wraps lustre_kakaomap v1.0.0</description>
+    <studioProCategory>Display</studioProCategory>
+    <icon/>
+    <properties>
+        <!-- ==================== General ==================== -->
+        <propertyGroup caption="General">
+            <propertyGroup caption="API">
+                <property key="appKey" type="expression" required="true">
+                    <caption>Kakao App Key</caption>
+                    <description>JavaScript App Key from Kakao Developers console</description>
+                    <returnType type="String"/>
+                </property>
+                <property key="sdkLibraries" type="enumeration" defaultValue="base">
+                    <caption>SDK Libraries</caption>
+                    <description>Which Kakao SDK libraries to load</description>
+                    <enumerationValues>
+                        <enumerationValue key="base">Base only</enumerationValue>
+                        <enumerationValue key="services">Base + Services</enumerationValue>
+                        <enumerationValue key="clusterer">Base + Clusterer</enumerationValue>
+                        <enumerationValue key="drawing">Base + Drawing</enumerationValue>
+                        <enumerationValue key="servicesClusterer">Base + Services + Clusterer</enumerationValue>
+                        <enumerationValue key="all">All (Services + Clusterer + Drawing)</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="mapId" type="string" defaultValue="kakaomap" required="false">
+                    <caption>Map ID</caption>
+                    <description>Unique identifier for the map instance</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Dimensions">
+                <property key="widthUnit" type="enumeration" defaultValue="percentage">
+                    <caption>Width unit</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="percentage">Percentage</enumerationValue>
+                        <enumerationValue key="pixels">Pixels</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="mapWidth" type="integer" defaultValue="100">
+                    <caption>Width</caption>
+                    <description>Width value (percentage or pixels)</description>
+                </property>
+                <property key="heightUnit" type="enumeration" defaultValue="pixels">
+                    <caption>Height unit</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="pixels">Pixels</enumerationValue>
+                        <enumerationValue key="percentageOfWidth">Percentage of width</enumerationValue>
+                        <enumerationValue key="percentageOfParent">Percentage of parent</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="mapHeight" type="integer" defaultValue="400">
+                    <caption>Height</caption>
+                    <description>Height value</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Preset">
+                <property key="mapPreset" type="enumeration" defaultValue="fullControl">
+                    <caption>Map preset</caption>
+                    <description>Preset configuration for map initialization</description>
+                    <enumerationValues>
+                        <enumerationValue key="fullControl">Full control</enumerationValue>
+                        <enumerationValue key="cleanMap">Clean map</enumerationValue>
+                        <enumerationValue key="satellite">Satellite</enumerationValue>
+                        <enumerationValue key="hybrid">Hybrid</enumerationValue>
+                        <enumerationValue key="readonly">Read-only</enumerationValue>
+                        <enumerationValue key="custom">Custom</enumerationValue>
+                    </enumerationValues>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Map Options ==================== -->
+        <propertyGroup caption="Map Options">
+            <propertyGroup caption="Center">
+                <property key="centerSource" type="enumeration" defaultValue="preset">
+                    <caption>Center source</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="preset">Korean city preset</enumerationValue>
+                        <enumerationValue key="coordinates">Latitude/Longitude</enumerationValue>
+                        <enumerationValue key="expression">Expression</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="centerPreset" type="enumeration" defaultValue="seoul">
+                    <caption>City preset</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="seoul">Seoul</enumerationValue>
+                        <enumerationValue key="busan">Busan</enumerationValue>
+                        <enumerationValue key="daegu">Daegu</enumerationValue>
+                        <enumerationValue key="incheon">Incheon</enumerationValue>
+                        <enumerationValue key="gwangju">Gwangju</enumerationValue>
+                        <enumerationValue key="daejeon">Daejeon</enumerationValue>
+                        <enumerationValue key="ulsan">Ulsan</enumerationValue>
+                        <enumerationValue key="sejong">Sejong</enumerationValue>
+                        <enumerationValue key="jeju">Jeju</enumerationValue>
+                        <enumerationValue key="pangyo">Pangyo</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="centerLat" type="expression" required="false">
+                    <caption>Center latitude</caption>
+                    <description/>
+                    <returnType type="Decimal"/>
+                </property>
+                <property key="centerLng" type="expression" required="false">
+                    <caption>Center longitude</caption>
+                    <description/>
+                    <returnType type="Decimal"/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Zoom">
+                <property key="zoomLevel" type="integer" defaultValue="3">
+                    <caption>Zoom level</caption>
+                    <description>1-14, lower = closer</description>
+                </property>
+                <property key="minLevel" type="integer" defaultValue="1">
+                    <caption>Min zoom level</caption>
+                    <description/>
+                </property>
+                <property key="maxLevel" type="integer" defaultValue="14">
+                    <caption>Max zoom level</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Map Type">
+                <property key="mapType" type="enumeration" defaultValue="roadmap">
+                    <caption>Map type</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="roadmap">Roadmap</enumerationValue>
+                        <enumerationValue key="skyview">Skyview</enumerationValue>
+                        <enumerationValue key="hybrid">Hybrid</enumerationValue>
+                    </enumerationValues>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Interactions">
+                <property key="optDraggable" type="boolean" defaultValue="true">
+                    <caption>Draggable</caption>
+                    <description/>
+                </property>
+                <property key="optScrollwheel" type="boolean" defaultValue="true">
+                    <caption>Scroll wheel zoom</caption>
+                    <description/>
+                </property>
+                <property key="optKeyboard" type="boolean" defaultValue="true">
+                    <caption>Keyboard shortcuts</caption>
+                    <description/>
+                </property>
+                <property key="optDisableDoubleClick" type="boolean" defaultValue="false">
+                    <caption>Disable double-click</caption>
+                    <description/>
+                </property>
+                <property key="optDisableDoubleClickZoom" type="boolean" defaultValue="false">
+                    <caption>Disable double-click zoom only</caption>
+                    <description/>
+                </property>
+                <property key="optTileAnimation" type="boolean" defaultValue="true">
+                    <caption>Tile animation</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Controls">
+                <property key="showMapTypeControl" type="boolean" defaultValue="false">
+                    <caption>Map type control</caption>
+                    <description/>
+                </property>
+                <property key="mapTypeControlPosition" type="enumeration" defaultValue="topRight">
+                    <caption>Map type control position</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="top">Top</enumerationValue>
+                        <enumerationValue key="topLeft">Top Left</enumerationValue>
+                        <enumerationValue key="topRight">Top Right</enumerationValue>
+                        <enumerationValue key="left">Left</enumerationValue>
+                        <enumerationValue key="right">Right</enumerationValue>
+                        <enumerationValue key="bottomLeft">Bottom Left</enumerationValue>
+                        <enumerationValue key="bottom">Bottom</enumerationValue>
+                        <enumerationValue key="bottomRight">Bottom Right</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="showZoomControl" type="boolean" defaultValue="false">
+                    <caption>Zoom control</caption>
+                    <description/>
+                </property>
+                <property key="zoomControlPosition" type="enumeration" defaultValue="right">
+                    <caption>Zoom control position</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="top">Top</enumerationValue>
+                        <enumerationValue key="topLeft">Top Left</enumerationValue>
+                        <enumerationValue key="topRight">Top Right</enumerationValue>
+                        <enumerationValue key="left">Left</enumerationValue>
+                        <enumerationValue key="right">Right</enumerationValue>
+                        <enumerationValue key="bottomLeft">Bottom Left</enumerationValue>
+                        <enumerationValue key="bottom">Bottom</enumerationValue>
+                        <enumerationValue key="bottomRight">Bottom Right</enumerationValue>
+                    </enumerationValues>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Overlay Tiles">
+                <property key="overlayTraffic" type="boolean" defaultValue="false">
+                    <caption>Traffic overlay</caption>
+                    <description/>
+                </property>
+                <property key="overlayBicycle" type="boolean" defaultValue="false">
+                    <caption>Bicycle overlay</caption>
+                    <description/>
+                </property>
+                <property key="overlayTerrain" type="boolean" defaultValue="false">
+                    <caption>Terrain overlay</caption>
+                    <description/>
+                </property>
+                <property key="overlayUseDistrict" type="boolean" defaultValue="false">
+                    <caption>Use district overlay</caption>
+                    <description/>
+                </property>
+                <property key="overlayRoadview" type="boolean" defaultValue="false">
+                    <caption>Roadview overlay</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Markers ==================== -->
+        <propertyGroup caption="Markers">
+            <propertyGroup caption="Dynamic Markers">
+                <property key="enableMarkers" type="boolean" defaultValue="false">
+                    <caption>Enable markers</caption>
+                    <description/>
+                </property>
+                <property key="markerData" type="datasource" isList="true" required="false">
+                    <caption>Marker data source</caption>
+                    <description/>
+                </property>
+                <property key="markerLat" type="attribute" dataSource="markerData" required="false">
+                    <caption>Latitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="markerLng" type="attribute" dataSource="markerData" required="false">
+                    <caption>Longitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="markerTitle" type="attribute" dataSource="markerData" required="false">
+                    <caption>Title</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="markerDraggable" type="boolean" defaultValue="false">
+                    <caption>Markers draggable</caption>
+                    <description/>
+                </property>
+                <property key="markerClickable" type="boolean" defaultValue="true">
+                    <caption>Markers clickable</caption>
+                    <description/>
+                </property>
+                <property key="markerOpacity" type="string" defaultValue="1.0" required="false">
+                    <caption>Marker opacity (0.0-1.0)</caption>
+                    <description/>
+                </property>
+                <property key="markerImageSrc" type="expression" required="false">
+                    <caption>Custom marker image URL</caption>
+                    <description/>
+                    <returnType type="String"/>
+                </property>
+                <property key="markerImageWidth" type="integer" defaultValue="0">
+                    <caption>Marker image width (px)</caption>
+                    <description>0 = default</description>
+                </property>
+                <property key="markerImageHeight" type="integer" defaultValue="0">
+                    <caption>Marker image height (px)</caption>
+                    <description>0 = default</description>
+                </property>
+                <property key="markerImageOffsetX" type="string" defaultValue="0" required="false">
+                    <caption>Image offset X</caption>
+                    <description>Anchor X offset (0 = default)</description>
+                </property>
+                <property key="markerImageOffsetY" type="string" defaultValue="0" required="false">
+                    <caption>Image offset Y</caption>
+                    <description>Anchor Y offset (0 = default)</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Marker Events">
+                <property key="onMarkerClick" type="action" dataSource="markerData" required="false">
+                    <caption>On marker click</caption>
+                    <description/>
+                </property>
+                <property key="onMarkerDragEnd" type="action" dataSource="markerData" required="false">
+                    <caption>On marker drag end</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Clustering">
+                <property key="enableClustering" type="boolean" defaultValue="false">
+                    <caption>Enable clustering</caption>
+                    <description>Requires Clusterer SDK</description>
+                </property>
+                <property key="clusterGridSize" type="integer" defaultValue="60">
+                    <caption>Grid size</caption>
+                    <description/>
+                </property>
+                <property key="clusterMinLevel" type="integer" defaultValue="0">
+                    <caption>Min cluster level</caption>
+                    <description/>
+                </property>
+                <property key="clusterMinSize" type="integer" defaultValue="2">
+                    <caption>Min cluster size</caption>
+                    <description/>
+                </property>
+                <property key="clusterAverageCenter" type="boolean" defaultValue="true">
+                    <caption>Average center</caption>
+                    <description/>
+                </property>
+                <property key="clusterDisableClickZoom" type="boolean" defaultValue="false">
+                    <caption>Disable click zoom</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Info Windows ==================== -->
+        <propertyGroup caption="Info Windows">
+            <propertyGroup caption="Info Window Settings">
+                <property key="enableInfoWindow" type="boolean" defaultValue="false">
+                    <caption>Enable info windows</caption>
+                    <description/>
+                </property>
+                <property key="infoWindowContent" type="attribute" dataSource="markerData" required="false">
+                    <caption>Content (HTML)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="infoWindowRemovable" type="boolean" defaultValue="true">
+                    <caption>Removable</caption>
+                    <description/>
+                </property>
+                <property key="infoWindowDisableAutoPan" type="boolean" defaultValue="false">
+                    <caption>Disable auto-pan</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Custom Overlays ==================== -->
+        <propertyGroup caption="Custom Overlays">
+            <propertyGroup caption="Custom Overlay Settings">
+                <property key="enableCustomOverlays" type="boolean" defaultValue="false">
+                    <caption>Enable custom overlays</caption>
+                    <description/>
+                </property>
+                <property key="overlayData" type="datasource" isList="true" required="false">
+                    <caption>Overlay data source</caption>
+                    <description/>
+                </property>
+                <property key="overlayLat" type="attribute" dataSource="overlayData" required="false">
+                    <caption>Latitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="overlayLng" type="attribute" dataSource="overlayData" required="false">
+                    <caption>Longitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="overlayContent" type="attribute" dataSource="overlayData" required="false">
+                    <caption>Content (HTML)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="overlayClickable" type="boolean" defaultValue="true">
+                    <caption>Clickable</caption>
+                    <description/>
+                </property>
+                <property key="overlayXAnchor" type="string" defaultValue="0.5" required="false">
+                    <caption>X anchor (0.0-1.0)</caption>
+                    <description/>
+                </property>
+                <property key="overlayYAnchor" type="string" defaultValue="1.0" required="false">
+                    <caption>Y anchor (0.0-1.0)</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Shapes ==================== -->
+        <propertyGroup caption="Shapes">
+            <propertyGroup caption="Polylines">
+                <property key="enablePolylines" type="boolean" defaultValue="false">
+                    <caption>Enable polylines</caption>
+                    <description/>
+                </property>
+                <property key="polylineData" type="datasource" isList="true" required="false">
+                    <caption>Polyline data source</caption>
+                    <description/>
+                </property>
+                <property key="polylinePath" type="attribute" dataSource="polylineData" required="false">
+                    <caption>Path (JSON)</caption>
+                    <description>[[lat,lng],[lat,lng],...]</description>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="polylineColor" type="string" defaultValue="#FF0000" required="false">
+                    <caption>Stroke color</caption>
+                    <description/>
+                </property>
+                <property key="polylineWeight" type="integer" defaultValue="3">
+                    <caption>Stroke weight</caption>
+                    <description/>
+                </property>
+                <property key="polylineOpacity" type="string" defaultValue="1.0" required="false">
+                    <caption>Stroke opacity</caption>
+                    <description/>
+                </property>
+                <property key="polylineStyle" type="enumeration" defaultValue="solid">
+                    <caption>Stroke style</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="solid">Solid</enumerationValue>
+                        <enumerationValue key="shortdash">Short dash</enumerationValue>
+                        <enumerationValue key="shortdot">Short dot</enumerationValue>
+                        <enumerationValue key="shortdashdot">Short dash-dot</enumerationValue>
+                        <enumerationValue key="dot">Dot</enumerationValue>
+                        <enumerationValue key="dash">Dash</enumerationValue>
+                        <enumerationValue key="dashdot">Dash-dot</enumerationValue>
+                        <enumerationValue key="longdash">Long dash</enumerationValue>
+                        <enumerationValue key="longdashdot">Long dash-dot</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="polylineEndArrow" type="boolean" defaultValue="false">
+                    <caption>End arrow</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Polygons">
+                <property key="enablePolygons" type="boolean" defaultValue="false">
+                    <caption>Enable polygons</caption>
+                    <description/>
+                </property>
+                <property key="polygonData" type="datasource" isList="true" required="false">
+                    <caption>Polygon data source</caption>
+                    <description/>
+                </property>
+                <property key="polygonPath" type="attribute" dataSource="polygonData" required="false">
+                    <caption>Path (JSON)</caption>
+                    <description>[[lat,lng],[lat,lng],...]</description>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="polygonStrokeColor" type="string" defaultValue="#FF0000" required="false">
+                    <caption>Stroke color</caption>
+                    <description/>
+                </property>
+                <property key="polygonStrokeWeight" type="integer" defaultValue="2">
+                    <caption>Stroke weight</caption>
+                    <description/>
+                </property>
+                <property key="polygonStrokeStyle" type="enumeration" defaultValue="solid">
+                    <caption>Stroke style</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="solid">Solid</enumerationValue>
+                        <enumerationValue key="shortdash">Short dash</enumerationValue>
+                        <enumerationValue key="dot">Dot</enumerationValue>
+                        <enumerationValue key="dash">Dash</enumerationValue>
+                        <enumerationValue key="dashdot">Dash-dot</enumerationValue>
+                        <enumerationValue key="longdash">Long dash</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="polygonFillColor" type="string" defaultValue="#FF000033" required="false">
+                    <caption>Fill color</caption>
+                    <description/>
+                </property>
+                <property key="polygonFillOpacity" type="string" defaultValue="0.3" required="false">
+                    <caption>Fill opacity</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Circles">
+                <property key="enableCircles" type="boolean" defaultValue="false">
+                    <caption>Enable circles</caption>
+                    <description/>
+                </property>
+                <property key="circleData" type="datasource" isList="true" required="false">
+                    <caption>Circle data source</caption>
+                    <description/>
+                </property>
+                <property key="circleCenterLat" type="attribute" dataSource="circleData" required="false">
+                    <caption>Center latitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="circleCenterLng" type="attribute" dataSource="circleData" required="false">
+                    <caption>Center longitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="circleRadius" type="attribute" dataSource="circleData" required="false">
+                    <caption>Radius (meters)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="circleStrokeColor" type="string" defaultValue="#0000FF" required="false">
+                    <caption>Stroke color</caption>
+                    <description/>
+                </property>
+                <property key="circleFillColor" type="string" defaultValue="#0000FF33" required="false">
+                    <caption>Fill color</caption>
+                    <description/>
+                </property>
+                <property key="circleFillOpacity" type="string" defaultValue="0.3" required="false">
+                    <caption>Fill opacity</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Rectangles">
+                <property key="enableRectangles" type="boolean" defaultValue="false">
+                    <caption>Enable rectangles</caption>
+                    <description/>
+                </property>
+                <property key="rectangleData" type="datasource" isList="true" required="false">
+                    <caption>Rectangle data source</caption>
+                    <description/>
+                </property>
+                <property key="rectSwLat" type="attribute" dataSource="rectangleData" required="false">
+                    <caption>SW latitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="rectSwLng" type="attribute" dataSource="rectangleData" required="false">
+                    <caption>SW longitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="rectNeLat" type="attribute" dataSource="rectangleData" required="false">
+                    <caption>NE latitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="rectNeLng" type="attribute" dataSource="rectangleData" required="false">
+                    <caption>NE longitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="rectStrokeColor" type="string" defaultValue="#00FF00" required="false">
+                    <caption>Stroke color</caption>
+                    <description/>
+                </property>
+                <property key="rectFillColor" type="string" defaultValue="#00FF0033" required="false">
+                    <caption>Fill color</caption>
+                    <description/>
+                </property>
+                <property key="rectFillOpacity" type="string" defaultValue="0.3" required="false">
+                    <caption>Fill opacity</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Ellipses">
+                <property key="enableEllipses" type="boolean" defaultValue="false">
+                    <caption>Enable ellipses</caption>
+                    <description/>
+                </property>
+                <property key="ellipseData" type="datasource" isList="true" required="false">
+                    <caption>Ellipse data source</caption>
+                    <description/>
+                </property>
+                <property key="ellipseCenterLat" type="attribute" dataSource="ellipseData" required="false">
+                    <caption>Center latitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="ellipseCenterLng" type="attribute" dataSource="ellipseData" required="false">
+                    <caption>Center longitude</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="ellipseRx" type="attribute" dataSource="ellipseData" required="false">
+                    <caption>X radius (meters)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="ellipseRy" type="attribute" dataSource="ellipseData" required="false">
+                    <caption>Y radius (meters)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="ellipseStrokeColor" type="string" defaultValue="#FF00FF" required="false">
+                    <caption>Stroke color</caption>
+                    <description/>
+                </property>
+                <property key="ellipseFillColor" type="string" defaultValue="#FF00FF33" required="false">
+                    <caption>Fill color</caption>
+                    <description/>
+                </property>
+                <property key="ellipseFillOpacity" type="string" defaultValue="0.3" required="false">
+                    <caption>Fill opacity</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Shape Events">
+                <property key="onShapeClick" type="action" required="false">
+                    <caption>On shape click</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Events ==================== -->
+        <propertyGroup caption="Events">
+            <propertyGroup caption="Click Events">
+                <property key="onMapClick" type="action" required="false">
+                    <caption>On map click</caption>
+                    <description/>
+                </property>
+                <property key="onMapDoubleClick" type="action" required="false">
+                    <caption>On map double-click</caption>
+                    <description/>
+                </property>
+                <property key="onMapRightClick" type="action" required="false">
+                    <caption>On map right-click</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="State Events">
+                <property key="onCenterChanged" type="action" required="false">
+                    <caption>On center changed</caption>
+                    <description/>
+                </property>
+                <property key="onZoomChanged" type="action" required="false">
+                    <caption>On zoom changed</caption>
+                    <description/>
+                </property>
+                <property key="onBoundsChanged" type="action" required="false">
+                    <caption>On bounds changed</caption>
+                    <description/>
+                </property>
+                <property key="onIdle" type="action" required="false">
+                    <caption>On idle</caption>
+                    <description/>
+                </property>
+                <property key="onTilesLoaded" type="action" required="false">
+                    <caption>On tiles loaded</caption>
+                    <description/>
+                </property>
+                <property key="onMapTypeChanged" type="action" required="false">
+                    <caption>On map type changed</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Drag Events">
+                <property key="onDragStart" type="action" required="false">
+                    <caption>On drag start</caption>
+                    <description/>
+                </property>
+                <property key="onDrag" type="action" required="false">
+                    <caption>On drag</caption>
+                    <description/>
+                </property>
+                <property key="onDragEnd" type="action" required="false">
+                    <caption>On drag end</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Click Coordinates Output">
+                <property key="clickedLat" type="attribute" required="false">
+                    <caption>Clicked latitude (output)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="clickedLng" type="attribute" required="false">
+                    <caption>Clicked longitude (output)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Services ==================== -->
+        <propertyGroup caption="Services">
+            <propertyGroup caption="Places Search">
+                <property key="enablePlacesSearch" type="boolean" defaultValue="false">
+                    <caption>Enable places search</caption>
+                    <description>Requires Services SDK</description>
+                </property>
+                <property key="placesSearchKeyword" type="attribute" required="false">
+                    <caption>Search keyword</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="placesSearchCategory" type="enumeration" defaultValue="none">
+                    <caption>Category filter</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="none">None</enumerationValue>
+                        <enumerationValue key="MT1">Mart</enumerationValue>
+                        <enumerationValue key="CS2">Convenience Store</enumerationValue>
+                        <enumerationValue key="SC4">School</enumerationValue>
+                        <enumerationValue key="AC5">Academy</enumerationValue>
+                        <enumerationValue key="PK6">Parking</enumerationValue>
+                        <enumerationValue key="OL7">Gas Station</enumerationValue>
+                        <enumerationValue key="SW8">Subway</enumerationValue>
+                        <enumerationValue key="BK9">Bank</enumerationValue>
+                        <enumerationValue key="CT1">Culture</enumerationValue>
+                        <enumerationValue key="AG2">Brokerage</enumerationValue>
+                        <enumerationValue key="PO3">Public Institution</enumerationValue>
+                        <enumerationValue key="AT4">Attraction</enumerationValue>
+                        <enumerationValue key="AD5">Lodge</enumerationValue>
+                        <enumerationValue key="FD6">Restaurant</enumerationValue>
+                        <enumerationValue key="CE7">Cafe</enumerationValue>
+                        <enumerationValue key="HP8">Hospital</enumerationValue>
+                        <enumerationValue key="PM9">Pharmacy</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="placesSearchRadius" type="integer" defaultValue="5000">
+                    <caption>Search radius (meters)</caption>
+                    <description/>
+                </property>
+                <property key="placesSearchSort" type="enumeration" defaultValue="accuracy">
+                    <caption>Sort by</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="accuracy">Accuracy</enumerationValue>
+                        <enumerationValue key="distance">Distance</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="placesSearchSize" type="integer" defaultValue="15">
+                    <caption>Results per page</caption>
+                    <description>1-15</description>
+                </property>
+                <property key="placesSearchPage" type="integer" defaultValue="1">
+                    <caption>Page number</caption>
+                    <description/>
+                </property>
+                <property key="onPlacesSearchResult" type="action" required="false">
+                    <caption>On search result</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Geocoding">
+                <property key="enableGeocoder" type="boolean" defaultValue="false">
+                    <caption>Enable geocoder</caption>
+                    <description>Requires Services SDK</description>
+                </property>
+                <property key="geocodeAddress" type="attribute" required="false">
+                    <caption>Address input</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="geocodeResultLat" type="attribute" required="false">
+                    <caption>Result latitude (output)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="geocodeResultLng" type="attribute" required="false">
+                    <caption>Result longitude (output)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="Decimal"/></attributeTypes>
+                </property>
+                <property key="reverseGeocodeResult" type="attribute" required="false">
+                    <caption>Reverse geocode address (output)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="onGeocodeResult" type="action" required="false">
+                    <caption>On geocode result</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Drawing ==================== -->
+        <propertyGroup caption="Drawing">
+            <propertyGroup caption="Drawing Manager">
+                <property key="enableDrawing" type="boolean" defaultValue="false">
+                    <caption>Enable drawing tools</caption>
+                    <description>Requires Drawing SDK</description>
+                </property>
+                <property key="drawingMarker" type="boolean" defaultValue="true">
+                    <caption>Marker tool</caption>
+                    <description/>
+                </property>
+                <property key="drawingPolyline" type="boolean" defaultValue="true">
+                    <caption>Polyline tool</caption>
+                    <description/>
+                </property>
+                <property key="drawingArrow" type="boolean" defaultValue="true">
+                    <caption>Arrow tool</caption>
+                    <description/>
+                </property>
+                <property key="drawingRectangle" type="boolean" defaultValue="true">
+                    <caption>Rectangle tool</caption>
+                    <description/>
+                </property>
+                <property key="drawingCircle" type="boolean" defaultValue="true">
+                    <caption>Circle tool</caption>
+                    <description/>
+                </property>
+                <property key="drawingEllipse" type="boolean" defaultValue="true">
+                    <caption>Ellipse tool</caption>
+                    <description/>
+                </property>
+                <property key="drawingPolygon" type="boolean" defaultValue="true">
+                    <caption>Polygon tool</caption>
+                    <description/>
+                </property>
+                <property key="drawingStrokeColor" type="string" defaultValue="#FF0000" required="false">
+                    <caption>Default stroke color</caption>
+                    <description/>
+                </property>
+                <property key="drawingFillColor" type="string" defaultValue="#FF000033" required="false">
+                    <caption>Default fill color</caption>
+                    <description/>
+                </property>
+                <property key="drawingStrokeWeight" type="integer" defaultValue="3">
+                    <caption>Default stroke weight</caption>
+                    <description/>
+                </property>
+                <property key="drawingEditable" type="boolean" defaultValue="true">
+                    <caption>Shapes editable</caption>
+                    <description/>
+                </property>
+                <property key="drawingRemovable" type="boolean" defaultValue="true">
+                    <caption>Shapes removable</caption>
+                    <description/>
+                </property>
+                <property key="drawingDataOutput" type="attribute" required="false">
+                    <caption>Drawing data (JSON output)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="onDrawEnd" type="action" required="false">
+                    <caption>On draw end</caption>
+                    <description/>
+                </property>
+                <property key="onDrawingStateChanged" type="action" required="false">
+                    <caption>On drawing state changed</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Roadview ==================== -->
+        <propertyGroup caption="Roadview">
+            <propertyGroup caption="Roadview Settings">
+                <property key="enableRoadview" type="boolean" defaultValue="false">
+                    <caption>Enable roadview</caption>
+                    <description/>
+                </property>
+                <property key="roadviewPosition" type="enumeration" defaultValue="right">
+                    <caption>Panel position</caption>
+                    <description/>
+                    <enumerationValues>
+                        <enumerationValue key="right">Right</enumerationValue>
+                        <enumerationValue key="bottom">Bottom</enumerationValue>
+                        <enumerationValue key="left">Left</enumerationValue>
+                        <enumerationValue key="top">Top</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="roadviewPan" type="string" defaultValue="0" required="false">
+                    <caption>Initial pan (degrees)</caption>
+                    <description/>
+                </property>
+                <property key="roadviewTilt" type="string" defaultValue="0" required="false">
+                    <caption>Initial tilt (degrees)</caption>
+                    <description/>
+                </property>
+                <property key="roadviewZoom" type="integer" defaultValue="0">
+                    <caption>Initial zoom</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Static Map ==================== -->
+        <propertyGroup caption="Static Map">
+            <propertyGroup caption="Static Map Mode">
+                <property key="useStaticMap" type="boolean" defaultValue="false">
+                    <caption>Use static map</caption>
+                    <description>Non-interactive map image</description>
+                </property>
+                <property key="staticMapShowMarker" type="boolean" defaultValue="true">
+                    <caption>Show center marker</caption>
+                    <description/>
+                </property>
+                <property key="staticMapMarkerText" type="string" defaultValue="" required="false">
+                    <caption>Marker text</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+
+        <!-- ==================== Advanced ==================== -->
+        <propertyGroup caption="Advanced">
+            <propertyGroup caption="URL Generator">
+                <property key="enableUrlGenerator" type="boolean" defaultValue="false">
+                    <caption>Enable URL generation</caption>
+                    <description/>
+                </property>
+                <property key="generatedUrl" type="attribute" required="false">
+                    <caption>Generated URL (output)</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="GeoJSON">
+                <property key="enableGeoJson" type="boolean" defaultValue="false">
+                    <caption>Enable GeoJSON rendering</caption>
+                    <description/>
+                </property>
+                <property key="geoJsonData" type="attribute" required="false">
+                    <caption>GeoJSON data</caption>
+                    <description/>
+                    <attributeTypes><attributeType name="String"/></attributeTypes>
+                </property>
+                <property key="geoJsonStrokeColor" type="string" defaultValue="#3388FF" required="false">
+                    <caption>Stroke color</caption>
+                    <description/>
+                </property>
+                <property key="geoJsonFillColor" type="string" defaultValue="#3388FF33" required="false">
+                    <caption>Fill color</caption>
+                    <description/>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+    </properties>
+</widget>

@@ -1,0 +1,60 @@
+/* Mendix Kakao Map 위젯 스타일 */
+
+.mendix-kakao-map-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 로드뷰 분할 레이아웃 */
+.mendix-kakao-map-container.with-roadview-right {
+  display: flex;
+  flex-direction: row;
+}
+
+.mendix-kakao-map-container.with-roadview-bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+.mendix-kakao-map-container.with-roadview-left {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.mendix-kakao-map-container.with-roadview-top {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.mendix-kakao-map-container .map-panel {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.mendix-kakao-map-container .roadview-panel {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* 로딩 오버레이 */
+.mendix-kakao-map-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #999;
+  font-size: 14px;
+  font-family: sans-serif;
+}
+
+/* Studio Pro 미리보기 */
+.mendix-kakao-map-preview {
+  min-height: 200px;
+}
