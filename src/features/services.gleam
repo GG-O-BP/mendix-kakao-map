@@ -1,9 +1,9 @@
 // 장소검색 + 지오코딩 서비스 — 전체 API 활용
 
 import gleam/float
+import gleam/json
 import gleam/list
 import gleam/option
-import gleam/string
 import lustre/effect.{type Effect}
 import lustre_kakaomap/coords.{type LatLng}
 import lustre_kakaomap/services/geocoder
@@ -35,7 +35,7 @@ pub fn search_places(_map_id: String, wp: WidgetProps) -> Effect(Msg) {
             places.size(wp.places_search_size),
             places.page(wp.places_search_page),
           ]
-          let options = append_list(base_opts, sort_opt)
+          let options = list.append(base_opts, sort_opt)
 
           // 카테고리 필터가 있으면 추가
           case wp.places_search_category {
@@ -45,9 +45,8 @@ pub fn search_places(_map_id: String, wp: WidgetProps) -> Effect(Msg) {
                 msg.PlacesResult(s, result_str)
               })
             code -> {
-              // category_group_code (raw) + keyword_search
               let options_with_cat =
-                append_list(options, [places.category_group_code(code)])
+                list.append(options, [places.category_group_code(code)])
               places.keyword_search(kw, options_with_cat, fn(s, results) {
                 let result_str = format_place_results(results)
                 msg.PlacesResult(s, result_str)
@@ -166,37 +165,23 @@ pub fn coord_system_str(cs: status.CoordSystem) -> String {
 
 // --- 내부 유틸 ---
 
-/// PlaceResult 리스트를 JSON 형식 문자열로 변환
+/// PlaceResult 리스트를 JSON 문자열로 변환 (특수문자 이스케이핑 포함)
 fn format_place_results(results: List(places.PlaceResult)) -> String {
-  let entries =
-    list.map(results, fn(r) {
-      string.concat([
-        "{\"id\":\"",
-        places.id(r),
-        "\",\"name\":\"",
-        places.place_name(r),
-        "\",\"address\":\"",
-        places.address_name(r),
-        "\",\"road\":\"",
-        places.road_address_name(r),
-        "\",\"phone\":\"",
-        places.phone(r),
-        "\",\"lat\":",
-        float_str(places.lat(r)),
-        ",\"lng\":",
-        float_str(places.lng(r)),
-        ",\"category\":\"",
-        places.category_name(r),
-        "\",\"url\":\"",
-        places.place_url(r),
-        "\"}",
+  json.to_string(
+    json.array(results, fn(r) {
+      json.object([
+        #("id", json.string(places.id(r))),
+        #("name", json.string(places.place_name(r))),
+        #("address", json.string(places.address_name(r))),
+        #("road", json.string(places.road_address_name(r))),
+        #("phone", json.string(places.phone(r))),
+        #("lat", json.float(places.lat(r))),
+        #("lng", json.float(places.lng(r))),
+        #("category", json.string(places.category_name(r))),
+        #("url", json.string(places.place_url(r))),
       ])
-    })
-  "[" <> string.join(entries, ",") <> "]"
-}
-
-fn float_str(f: Float) -> String {
-  float.to_string(f)
+    }),
+  )
 }
 
 /// PlaceResult에서 LatLng 추출 (places.position 활용)
@@ -245,12 +230,5 @@ fn get_editable_str(props: mendix.JsProps, key: String) -> String {
   case mendix.get_prop(props, key) {
     option.Some(attr) -> ev.display_value(attr)
     option.None -> ""
-  }
-}
-
-fn append_list(a: List(x), b: List(x)) -> List(x) {
-  case a {
-    [] -> b
-    [head, ..tail] -> [head, ..append_list(tail, b)]
   }
 }

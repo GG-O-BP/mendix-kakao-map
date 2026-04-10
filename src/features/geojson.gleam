@@ -1,4 +1,5 @@
-// GeoJSON 파싱 + 렌더링 — coord_pair, line_coords, draw_line_string, draw_polygon_ring 활용
+// GeoJSON 파싱 + 렌더링
+// FeatureCollection, Feature, Geometry 구조를 지원
 
 import gleam/dynamic/decode
 import gleam/int
@@ -40,7 +41,6 @@ fn parse_and_render(
   data: String,
   wp: WidgetProps,
 ) -> Effect(Msg) {
-  // GeoJSON geometry 좌표 추출
   let geometries = parse_geometries(data)
 
   let line_opts = [
@@ -66,7 +66,6 @@ fn parse_and_render(
           geojson.draw_polygon_ring(coords, map_id, shape_id, poly_opts)
         }
         PointGeom(lng, lat) -> {
-          // coord_pair로 좌표 변환 후 마커로 렌더링
           let pos = geojson.coord_pair(lng, lat)
           let marker_id = "gj-pt-" <> int.to_string(i)
           marker.add(map_id, marker_id, [marker.position(pos)])
@@ -77,7 +76,7 @@ fn parse_and_render(
   effect.batch(effects)
 }
 
-// --- GeoJSON 파싱 타입 ---
+// --- GeoJSON 파싱 ---
 
 type GeoJsonGeometry {
   LineStringGeom(List(#(Float, Float)))
@@ -85,30 +84,84 @@ type GeoJsonGeometry {
   PointGeom(Float, Float)
 }
 
-/// 간단한 GeoJSON 파서 — 좌표 배열 추출
+/// GeoJSON 문자열 파싱 — FeatureCollection, Feature, Geometry 순서로 시도
 fn parse_geometries(data: String) -> List(GeoJsonGeometry) {
-  // GeoJSON coordinates 배열 추출 시도
-  // FeatureCollection → features → geometry → coordinates
-  let coord_decoder = decode.list(decode.float)
-  let coords_decoder = decode.list(coord_decoder)
-
-  // LineString / Polygon 좌표 파싱 시도
-  case json.parse(data, coords_decoder) {
-    Ok(raw_coords) -> {
-      let pairs = to_pairs(raw_coords)
-      case pairs {
-        [] -> []
-        _ -> [LineStringGeom(pairs)]
+  // FeatureCollection
+  case json.parse(data, feature_collection_decoder()) {
+    Ok(geoms) -> list.flatten(geoms)
+    Error(_) ->
+      // 단일 Feature
+      case json.parse(data, feature_decoder()) {
+        Ok(geoms) -> geoms
+        Error(_) ->
+          // 단일 Geometry
+          case json.parse(data, geometry_decoder()) {
+            Ok(geom) -> [geom]
+            Error(_) -> []
+          }
       }
-    }
-    Error(_) -> []
   }
 }
 
+/// FeatureCollection: { "type": "FeatureCollection", "features": [...] }
+fn feature_collection_decoder() -> decode.Decoder(List(List(GeoJsonGeometry))) {
+  use features <- decode.field("features", decode.list(feature_decoder()))
+  decode.success(features)
+}
+
+/// Feature: { "type": "Feature", "geometry": {...} }
+/// 하나의 Feature가 여러 geometry를 포함할 수 있음 (GeometryCollection 대비)
+fn feature_decoder() -> decode.Decoder(List(GeoJsonGeometry)) {
+  use geom <- decode.field("geometry", geometry_decoder())
+  decode.success([geom])
+}
+
+/// Geometry 디코더 — 좌표 구조의 차원으로 타입을 판별
+/// Point: [lng, lat] → List(Float)
+/// LineString: [[lng, lat], ...] → List(List(Float))
+/// Polygon: [[[lng, lat], ...], ...] → List(List(List(Float)))
+fn geometry_decoder() -> decode.Decoder(GeoJsonGeometry) {
+  decode.one_of(point_decoder(), [
+    line_string_decoder(),
+    polygon_decoder(),
+  ])
+}
+
+/// Point: coordinates는 [lng, lat]
+fn point_decoder() -> decode.Decoder(GeoJsonGeometry) {
+  use coords <- decode.field("coordinates", decode.list(decode.float))
+  case coords {
+    [lng, lat, ..] -> decode.success(PointGeom(lng, lat))
+    _ -> decode.success(PointGeom(0.0, 0.0))
+  }
+}
+
+/// LineString: coordinates는 [[lng, lat], ...]
+fn line_string_decoder() -> decode.Decoder(GeoJsonGeometry) {
+  use coords <- decode.field(
+    "coordinates",
+    decode.list(decode.list(decode.float)),
+  )
+  decode.success(LineStringGeom(to_pairs(coords)))
+}
+
+/// Polygon: coordinates는 [[[lng, lat], ...], ...] (첫 번째 링 = 외곽)
+fn polygon_decoder() -> decode.Decoder(GeoJsonGeometry) {
+  use rings <- decode.field(
+    "coordinates",
+    decode.list(decode.list(decode.list(decode.float))),
+  )
+  case rings {
+    [outer, ..] -> decode.success(PolygonGeom(to_pairs(outer)))
+    _ -> decode.success(PolygonGeom([]))
+  }
+}
+
+/// [lng, lat] 리스트를 튜플 리스트로 변환
 fn to_pairs(raw: List(List(Float))) -> List(#(Float, Float)) {
   list.filter_map(raw, fn(coord) {
     case coord {
-      [lng, lat] -> Ok(#(lng, lat))
+      [lng, lat, ..] -> Ok(#(lng, lat))
       _ -> Error(Nil)
     }
   })

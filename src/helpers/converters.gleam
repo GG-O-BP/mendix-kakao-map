@@ -1,5 +1,6 @@
 // Mendix enum 문자열 → lustre_kakaomap 타입 변환기
 
+import gleam/list
 import lustre_kakaomap/coords.{type LatLng}
 import lustre_kakaomap/drawing
 import lustre_kakaomap/services/places
@@ -200,16 +201,9 @@ pub fn to_category_code(s: String) -> places.CategoryCode {
   }
 }
 
-fn append_if(list: List(a), condition: Bool, item: a) -> List(a) {
+fn append_if(items: List(a), condition: Bool, item: a) -> List(a) {
   case condition {
-    True -> list_append(list, item)
-    False -> list
-  }
-}
-
-fn list_append(list: List(a), item: a) -> List(a) {
-  case list {
-    [] -> [item]
-    [head, ..tail] -> [head, ..list_append(tail, item)]
+    True -> list.append(items, [item])
+    False -> items
   }
 }

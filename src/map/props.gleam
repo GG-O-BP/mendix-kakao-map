@@ -330,9 +330,13 @@ fn get_int(props: JsProps, key: String, default: Int) -> Int {
 }
 
 fn get_expression_str(props: JsProps, key: String) -> String {
-  // Expression 타입은 DynamicValue로 전달 — string_prop으로 display_value 접근
-  mendix.get_string_prop(props, key)
+  // Expression 타입은 DynamicValue<string> 객체로 전달
+  // { status: "available", value: "실제값" } 구조이므로 전용 FFI 사용
+  do_get_expression_value(props, key)
 }
+
+@external(javascript, "../mendix_props_ffi.mjs", "get_expression_value")
+fn do_get_expression_value(props: JsProps, key: String) -> String
 
 fn parse_float_str(props: JsProps, key: String, default: Float) -> Float {
   let val = mendix.get_string_prop(props, key)
