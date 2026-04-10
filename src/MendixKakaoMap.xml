@@ -8,6 +8,7 @@
     <name>Mendix Kakao Map</name>
     <description>Kakao Map widget for Mendix — wraps lustre_kakaomap v1.0.0</description>
     <studioProCategory>Display</studioProCategory>
+    <studioCategory>Display</studioCategory>
     <icon/>
     <properties>
         <!-- ==================== General ==================== -->
