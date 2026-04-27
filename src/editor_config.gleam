@@ -42,7 +42,7 @@ const center_coord_keys = "centerLat,centerLng"
 
 const center_preset_key = "centerPreset"
 
-const custom_map_keys = "optDraggable,optScrollwheel,optKeyboard,optDisableDoubleClick,optDisableDoubleClickZoom,optTileAnimation"
+const custom_map_keys = "mapType,optDraggable,optScrollwheel,optKeyboard,optDisableDoubleClick,optDisableDoubleClickZoom,optTileAnimation"
 
 /// 속성 패널 설정 - Studio Pro에서 위젯 속성의 가시성을 제어
 pub fn get_properties(

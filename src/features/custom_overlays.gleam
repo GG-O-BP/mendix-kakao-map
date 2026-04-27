@@ -99,7 +99,11 @@ fn extract_overlay_data(wp: WidgetProps) -> List(OverlayData) {
   }
 }
 
-fn get_dec(props: mendix.JsProps, key: String, item: mendix.ObjectItem) -> Float {
+fn get_dec(
+  props: mendix.JsProps,
+  key: String,
+  item: mendix.ObjectItem,
+) -> Float {
   case mendix.get_prop(props, key) {
     option.Some(attr) ->
       case float.parse(ev.display_value(la.get_attribute(attr, item))) {

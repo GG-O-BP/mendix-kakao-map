@@ -31,7 +31,11 @@ pub fn midpoint(a: LatLng, b: LatLng) -> LatLng {
 }
 
 /// 위경도 오프셋 적용
-pub fn offset(position: LatLng, lat_offset: Float, lng_offset: Float) -> LatLng {
+pub fn offset(
+  position: LatLng,
+  lat_offset: Float,
+  lng_offset: Float,
+) -> LatLng {
   coords.offset(position, lat_offset, lng_offset)
 }
 

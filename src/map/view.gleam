@@ -90,11 +90,11 @@ fn container_style(wp: WidgetProps) -> attribute.Attribute(Msg) {
     "pixels" -> int.to_string(wp.map_width) <> "px"
     _ -> int.to_string(wp.map_width) <> "%"
   }
-  let height = case wp.height_unit {
-    "percentageOfWidth" ->
-      "0;padding-bottom:" <> int.to_string(wp.map_height) <> "%"
-    "percentageOfParent" -> int.to_string(wp.map_height) <> "%"
-    _ -> int.to_string(wp.map_height) <> "px"
+  let h = int.to_string(wp.map_height)
+  let style = case wp.height_unit {
+    "percentageOfWidth" -> "width:" <> width <> ";aspect-ratio:100/" <> h
+    "percentageOfParent" -> "width:" <> width <> ";height:" <> h <> "%"
+    _ -> "width:" <> width <> ";height:" <> h <> "px"
   }
-  attribute("style", "width:" <> width <> ";height:" <> height)
+  attribute("style", style)
 }

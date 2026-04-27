@@ -199,6 +199,9 @@ fn sync_polygons(
                   let opts =
                     polygon.from(path)
                     |> polygon.color(wp.polygon_stroke_color)
+                    |> list.prepend(polygon.stroke_weight(
+                      wp.polygon_stroke_weight,
+                    ))
                     |> polygon.fill(
                       wp.polygon_fill_color,
                       wp.polygon_fill_opacity,
@@ -227,7 +230,10 @@ fn sync_polygons(
 
 // --- 원 (전체 옵션) ---
 
-fn sync_circles(map_id: String, wp: WidgetProps) -> #(List(String), Effect(Msg)) {
+fn sync_circles(
+  map_id: String,
+  wp: WidgetProps,
+) -> #(List(String), Effect(Msg)) {
   case wp.enable_circles {
     False -> #([], effect.none())
     True -> {
@@ -389,7 +395,11 @@ fn get_str(
   }
 }
 
-fn get_dec(props: mendix.JsProps, key: String, item: mendix.ObjectItem) -> Float {
+fn get_dec(
+  props: mendix.JsProps,
+  key: String,
+  item: mendix.ObjectItem,
+) -> Float {
   case mendix.get_prop(props, key) {
     option.Some(attr) ->
       case float.parse(ev.display_value(la.get_attribute(attr, item))) {

@@ -18,7 +18,7 @@ pub fn init_map(map_id: String, wp: WidgetProps) -> Effect(Msg) {
 
 /// WidgetProps에서 MapOption 리스트 빌드 (preset 활용)
 fn build_options(wp: WidgetProps) -> List(lustre_kakaomap.MapOption) {
-  case wp.map_preset {
+  let preset_options = case wp.map_preset {
     "cleanMap" ->
       preset.clean_map()
       |> preset.with_center(wp.center)
@@ -44,8 +44,6 @@ fn build_options(wp: WidgetProps) -> List(lustre_kakaomap.MapOption) {
       lustre_kakaomap.center(wp.center),
       lustre_kakaomap.level(wp.zoom_level),
       lustre_kakaomap.map_type(wp.map_type),
-      lustre_kakaomap.min_level(wp.min_level),
-      lustre_kakaomap.max_level(wp.max_level),
       lustre_kakaomap.draggable(wp.opt_draggable),
       lustre_kakaomap.scrollwheel(wp.opt_scrollwheel),
       lustre_kakaomap.keyboard_shortcuts(wp.opt_keyboard),
@@ -56,6 +54,13 @@ fn build_options(wp: WidgetProps) -> List(lustre_kakaomap.MapOption) {
       lustre_kakaomap.tile_animation(wp.opt_tile_animation),
     ]
   }
+
+  // minLevel/maxLevel은 preset과 직교 — 모든 모드에서 적용 (앞에 prepend → 첫 매칭 우선)
+  [
+    lustre_kakaomap.min_level(wp.min_level),
+    lustre_kakaomap.max_level(wp.max_level),
+    ..preset_options
+  ]
 }
 
 /// 맵 초기화 후 컨트롤/오버레이 설정

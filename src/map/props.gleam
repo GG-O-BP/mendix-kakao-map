@@ -2,6 +2,7 @@
 // 매 렌더마다 fresh한 WidgetProps를 생성
 
 import gleam/float
+import gleam/int
 import gleam/option.{type Option}
 import gleam/result
 import helpers/converters
@@ -366,13 +367,18 @@ fn resolve_center(props: JsProps, center_source: String) -> LatLng {
 }
 
 fn parse_float_prop(props: JsProps, key: String) -> Option(Float) {
-  let val = mendix.get_string_prop(props, key)
+  // Expression+Decimal 속성은 DynamicValue<Big>로 전달됨 — 전용 FFI 사용
+  let val = do_get_expression_value(props, key)
   case val {
     "" -> option.None
     s ->
       case float.parse(s) {
         Ok(f) -> option.Some(f)
-        Error(_) -> option.None
+        Error(_) ->
+          case int.parse(s) {
+            Ok(i) -> option.Some(int.to_float(i))
+            Error(_) -> option.None
+          }
       }
   }
 }

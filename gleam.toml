@@ -1,5 +1,5 @@
 name = "mendix_kakao_map"
-version = "1.0.0"
+version = "1.0.1"
 target = "javascript"
 
 [javascript]
@@ -7,10 +7,10 @@ typescript_declarations = false
 runtime = "node"
 
 [dependencies]
-gleam_stdlib = ">= 0.44.0 and < 2.0.0"
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
 glendix = ">= 4.0.5 and < 5.0.0"
 mendraw = ">= 1.2.1 and < 2.0.0"
-dee = ">= 1.0.0 and < 2.0.0"
+dee = ">= 1.0.1 and < 2.0.0"
 redraw = ">= 19.2.2 and < 20.0.0"
 redraw_dom = ">= 19.2.2 and < 20.0.0"
 lustre = ">= 5.6.0 and < 6.0.0"
